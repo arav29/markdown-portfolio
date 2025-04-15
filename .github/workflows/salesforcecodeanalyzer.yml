@@ -2,7 +2,6 @@ name: Salesforce Code Analyzer Workflow
 
 permissions:
   contents: read  # Allows reading repository content (e.g., files)
-  secrets: read   # Allows reading secrets (e.g., authentication tokens)
   actions: write  # Allows writing or triggering other workflows
 
 on:
