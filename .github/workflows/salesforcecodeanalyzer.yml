@@ -1,5 +1,11 @@
  name: Salesforce Code Analyzer Workflow
-on: push
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on pushes to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger the workflow when a PR is opened targeting 'main' branch
 jobs:
   salesforce-code-analyzer-workflow:
     runs-on: ubuntu-latest
