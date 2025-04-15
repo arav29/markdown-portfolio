@@ -1,0 +1,64 @@
+public class SecurityVulnerabilitiesExample {
+
+    // 1. Insecure Direct Object Reference (IDOR) Vulnerability - Querying based on user input without validation
+    public static Account getAccountDetails(String accountId) {
+        // This code directly uses the user-provided accountId without any validation or check for ownership
+        // This could allow a user to query accounts they shouldn't have access to
+        Account acc = [SELECT Id, Name, Industry FROM Account WHERE Id = :accountId LIMIT 1];
+        return acc;
+    }
+
+    // 2. SOQL Injection Vulnerability - Vulnerable to injection based on user input
+    public static List<Account> searchAccounts(String searchQuery) {
+        // Search query directly used in SOQL, which can be manipulated by an attacker
+        String query = 'SELECT Id, Name, Industry FROM Account WHERE Name LIKE \'%' + searchQuery + '%\'';
+        List<Account> accounts = Database.query(query);
+        return accounts;
+    }
+
+    // 3. Hardcoded User Credentials Vulnerability - Hardcoded password
+    public static void loginToExternalService() {
+        String username = 'admin';
+        String password = 'hardcodedPassword123'; // Hardcoded password, vulnerable to leakage or brute force attacks
+        // Use username and password to authenticate
+    }
+
+    // 4. Insecure Deserialization Vulnerability - Accepting untrusted serialized data
+    public static void processSerializedData(String serializedData) {
+        // If 'serializedData' comes from an untrusted source, this can lead to a deserialization attack
+        // An attacker could modify the serialized data to execute unintended actions
+        Object obj = JSON.deserializeUntyped(serializedData);
+        System.debug('Processed object: ' + obj);
+    }
+
+    // 5. Insufficient Data Encryption - Sensitive data is stored without proper encryption
+    public static void storeSensitiveData(String sensitiveData) {
+        // Sensitive data like credit card numbers or personal information should be encrypted, but it's not here
+        // This is vulnerable to exposure in case of unauthorized access
+        Account acc = new Account(Name = 'Sensitive Account', Description = sensitiveData);
+        insert acc;
+    }
+
+    // 6. Missing Input Validation - Not validating user inputs
+    public static void updateAccountName(String accountId, String newName) {
+        // Not validating that 'newName' is safe, or checking if the user has permission to update the account
+        Account acc = [SELECT Id, Name FROM Account WHERE Id = :accountId LIMIT 1];
+        acc.Name = newName;
+        update acc;
+    }
+
+    // 7. Cross-Site Scripting (XSS) Vulnerability - Injecting unescaped data into the page without sanitization
+    public static String generateAccountReport(String userInput) {
+        // User input is directly injected into the response without sanitization, vulnerable to XSS attacks
+        return '<div>' + userInput + '</div>'; // Could allow script execution
+    }
+
+    // 8. Insecure File Upload Handling - Allowing users to upload arbitrary files without checking their type
+    public static void uploadFile(Blob fileData) {
+        // User can upload any file type, which could potentially include malicious scripts or executables
+        Attachment attachment = new Attachment();
+        attachment.Body = fileData;
+        attachment.Name = 'UploadedFile';
+        insert attachment;
+    }
+}
