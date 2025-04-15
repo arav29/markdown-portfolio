@@ -40,4 +40,19 @@ jobs:
         run: npm install -g @salesforce/cli@latest
 
       - name: Install Latest Salesforce Code Analyzer CLI Plugin
-        run: sf plugins install
+        run: sf plugins install code-analyzer@latest
+
+      - name: Run Salesforce Code Analyzer with Graph Engine
+        id: run-code-analyzer
+        uses: forcedotcom/run-code-analyzer@v2
+        with:
+          run-arguments: --workspace . --view detail --output-file sfca_results.html --output-file sfca_results.json --engine graph
+          results-artifact-name: salesforce-code-analyzer-results
+
+      - name: Check the outputs to determine whether to fail
+        if: |
+          steps.run-code-analyzer.outputs.exit-code > 0 ||
+          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-sev2-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-violations > 10
+        run: exit 1
